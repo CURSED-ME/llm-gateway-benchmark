@@ -1,0 +1,9 @@
+server:
+  port: 4000
+upstream:
+  base_url: http://mock-llm:8080
+pricing:
+  models:
+    gpt-4o-mini:
+      input_cost_per_1m: 0.15
+      output_cost_per_1m: 0.60

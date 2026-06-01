@@ -1,0 +1,8 @@
+# Source: https://docs.litellm.ai/docs/proxy/quick_start (Retrieved 2026-05-31)
+model_list:
+  - model_name: gpt-4o-mini
+    litellm_params:
+      model: openai/gpt-4o-mini
+      api_base: http://mock-llm:8080/v1
+      api_key: mock-key
+      custom_llm_provider: openai
