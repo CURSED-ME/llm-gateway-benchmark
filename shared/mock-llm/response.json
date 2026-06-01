@@ -1,0 +1,21 @@
+{
+  "id": "chatcmpl-mock123",
+  "object": "chat.completion",
+  "created": 1717200000,
+  "model": "gpt-4o-mini",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "This is a static response from the mock LLM server for benchmarking purposes."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 10,
+    "completion_tokens": 50,
+    "total_tokens": 60
+  }
+}

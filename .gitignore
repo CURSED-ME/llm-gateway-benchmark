@@ -1,0 +1,15 @@
+# Internal / Agent Folders
+.agents/
+
+# Internal Documentation
+project_context.md
+
+# Generated Tool Output
+graphify-out/
+
+# Massive Load Test Outputs
+ep01-litellm/results/*.json
+shared/results/*.json
+
+# macOS
+.DS_Store

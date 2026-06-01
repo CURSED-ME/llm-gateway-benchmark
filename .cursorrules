@@ -1,0 +1,89 @@
+# AI Coding Agent Directives: LLM Gateway Benchmarks
+
+> **Instruction to AI Agent:** You are operating in the `llm-gateway-benchmarks` repository. Your core objective is to build reproducible, highly accurate benchmarking infrastructure to compare LLM API gateways. You must strictly adhere to the following rules at all times.
+
+---
+
+## 1. The Core Directive
+You are building an **engineering-as-marketing benchmark**, not a SaaS product. 
+- **DO NOT** suggest or build web UIs, dashboards, or complex deployment pipelines.
+- **DO NOT** attempt to add new features to the gateways being tested.
+- **FOCUS EXCLUSIVELY** on infrastructure configuration, load testing scripts (`k6`), and data collection.
+
+## 2. Context is Law
+Before making any structural decision, you must read the `project_context.md` file in the root of this repository. It contains the exact mathematical definitions of the tests, the acceptance criteria, and the scope of the project. If a user requests something that violates the `project_context.md` (e.g., "let's benchmark 5 competitors at once"), you must push back and warn the user.
+
+## 3. The "Mock Only" Rule
+- **NEVER** use real OpenAI, Anthropic, or other LLM provider API keys.
+- **NEVER** route test traffic to the public internet.
+- All requests must be routed to the local `shared/mock-llm` server. If a gateway cannot be configured to point to a local upstream, we cannot benchmark it.
+
+## 4. The Competitor Fairness Mandate
+Our credibility relies on fairness. When configuring a competitor (like LiteLLM or Kong):
+1. You must search for and use their **official, production-recommended** Docker Compose configurations.
+2. You must never intentionally misconfigure a competitor to make them look bad.
+3. You must add a comment at the top of every competitor config file citing the exact documentation URL and date retrieved.
+4. If budget enforcement requires a database (e.g., LiteLLM requires PostgreSQL 16 for production-grade budget tracking), you **must** configure it. Do not use the in-memory/SQLite fallback. Give every competitor their best-possible setup.
+
+## 5. Tooling Strictness
+You are restricted to the following exact versions and tools:
+- **Load Testing:** `k6` only. Do not use `vegeta`, `wrk`, or Python `locust`.
+- **Orchestration:** `docker-compose` only. Do not build Kubernetes manifests or Terraform.
+- **Mock Server:** `nginx:alpine` serving static JSON (reuse the pattern from `loopers-oss/demo/mock-openai.conf`). No complex mock logic.
+- **Loopers Image:** Always use `ghcr.io/cursed-me/loopers:latest`. Do NOT build from source.
+- **Redis:** Always use `redis:7-alpine`. Do not upgrade or change this version.
+
+## 6. Strict Repository Structure
+All files must be placed in the locations defined in `project_context.md`. Do not invent new top-level folders. The canonical structure is:
+```
+llm-gateway-benchmarks/
+├── shared/
+│   ├── mock-llm/         # nginx:alpine mock server only
+│   └── harness/          # k6 scripts only
+└── ep01-litellm/
+    ├── docker-compose.yml
+    ├── litellm_config.yaml
+    ├── loopers.yaml
+    ├── seed.sh
+    └── results/          # committed k6 output
+```
+If you need to create a file that doesn't fit this structure, stop and ask the user before creating it.
+
+## 7. Auditability and Results
+- `k6` must always be run with `--out json=results/raw.json` so raw output is captured.
+- Summarized results must be written to `ep0X-<competitor>/results/` as Markdown files.
+- **NEVER delete or overwrite existing results.** Always write new results with a timestamp suffix (e.g., `budget_leak_2026-05-31.md`).
+
+## 8. The Episode Rule
+- Do not build a universal abstracted harness on Episode 1. Build narrowly for the current competitor only.
+- Only one episode is active at a time. If the user asks you to start `ep02` before `ep01` results are committed, push back.
+
+## 9. Anti-Hallucination on Pricing
+When writing scripts that calculate "Budget Leaks" or "Overspend":
+- Use **exactly** these fixed values from `project_context.md`:
+  - Per-request cost: `$0.0000315` (10 input tokens @ $0.15/1M + 50 output tokens @ $0.60/1M)
+  - Budget limit for leak test: `$0.01`
+  - Expected allowed requests at limit: `317`
+- Do not invent or fetch pricing dynamically. The mock server returns static tokens; the cost is static.
+
+## 10. Honesty in Results — Editorial Rules
+These apply when you generate any result summaries or README content:
+- ❌ Never write "LiteLLM is bad." Frame everything as **architectural trade-offs**.
+- ❌ Never hide a result where Loopers loses. Publish it and explain the architectural reason.
+- ❌ Never claim Loopers supports more providers. It supports **10**. LiteLLM supports 100+. State this directly.
+- ❌ Never benchmark a version of a competitor that is not their official, recommended production configuration.
+- ❌ Never use the benchmark repo to make claims about features (SSO, RBAC, UI). This is strictly **infrastructure performance**.
+- ✅ If Loopers does not win a test, still publish the result with an honest technical explanation.
+
+## 11. Environment Standardization
+Every docker-compose file you create must pin container resources to ensure reproducibility:
+- **Loopers:** `mem_limit: 2g`, `cpus: 1.0`
+- **LiteLLM / any competitor:** Same limits as Loopers — `mem_limit: 2g`, `cpus: 1.0`
+- **Redis:** `mem_limit: 256m`, `cpus: 0.5`
+- **PostgreSQL (if used):** `mem_limit: 512m`, `cpus: 1.0`
+- **Mock LLM server:** `mem_limit: 128m`, `cpus: 0.5`
+
+This ensures neither proxy has an unfair resource advantage.
+
+---
+*Agent: Acknowledge these rules silently and execute the user's next command strictly within these boundaries.*
