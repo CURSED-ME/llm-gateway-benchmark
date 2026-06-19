@@ -1,4 +1,7 @@
-# Source: https://docs.litellm.ai/docs/proxy/quick_start (Retrieved 2026-05-31)
+# Source: https://docs.litellm.ai/docs/proxy/quick_start (Retrieved 2026-06-19)
+general_settings:
+  fail_closed_budget_enforcement: true
+
 model_list:
   - model_name: gpt-4o-mini
     litellm_params:

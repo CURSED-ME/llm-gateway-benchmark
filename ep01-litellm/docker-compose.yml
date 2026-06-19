@@ -4,8 +4,6 @@ services:
   mock-llm:
     build:
       context: ../shared/mock-llm
-    ports:
-      - "8080:8080"
     deploy:
       resources:
         limits:

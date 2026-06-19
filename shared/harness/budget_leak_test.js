@@ -7,14 +7,21 @@ export const options = {
       executor: 'shared-iterations',
       vus: 1000,
       iterations: 1000,
-      env: { PROXY_URL: 'http://loopers:4000/openai/v1/chat/completions', API_KEY: 'lp-looperstestkey12345678901234567890123456789' },
+      env: { PROXY_URL: 'http://localhost:4000/openai/v1/chat/completions', API_KEY: 'lp-looperstestkey12345678901234567890123456789' },
       maxDuration: '10s',
     },
     litellm_leak: {
       executor: 'shared-iterations',
       vus: 1000,
       iterations: 1000,
-      env: { PROXY_URL: 'http://litellm:4001/v1/chat/completions', API_KEY: 'sk-litellm-test' },
+      env: { PROXY_URL: 'http://localhost:4001/v1/chat/completions', API_KEY: 'sk-litellm-test' },
+      maxDuration: '10s',
+    },
+    bifrost_leak: {
+      executor: 'shared-iterations',
+      vus: 1000,
+      iterations: 1000,
+      env: { PROXY_URL: 'http://bifrost:8080/v1/chat/completions', API_KEY: __ENV.BIFROST_KEY },
       maxDuration: '10s',
     }
   },
@@ -22,10 +29,15 @@ export const options = {
 
 if (__ENV.PROXY === 'loopers') {
     delete options.scenarios.litellm_leak;
+    delete options.scenarios.bifrost_leak;
 } else if (__ENV.PROXY === 'litellm') {
     delete options.scenarios.loopers_leak;
+    delete options.scenarios.bifrost_leak;
+} else if (__ENV.PROXY === 'bifrost') {
+    delete options.scenarios.loopers_leak;
+    delete options.scenarios.litellm_leak;
 } else {
-    throw new Error('Please set PROXY=loopers or PROXY=litellm');
+    throw new Error('Please set PROXY=loopers, PROXY=litellm, or PROXY=bifrost');
 }
 
 export default function () {

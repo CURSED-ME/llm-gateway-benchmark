@@ -11,11 +11,7 @@ if [ -z "$MODE" ]; then
   exit 1
 fi
 
-if command -v docker-compose &> /dev/null; then
-  DOCKER_COMPOSE="docker-compose"
-else
-  DOCKER_COMPOSE="docker compose"
-fi
+DOCKER_COMPOSE="docker compose"
 
 # Static loopers key matching the regex: ^lp-[a-zA-Z0-9]{43}$
 LOOPERS_KEY="lp-looperstestkey12345678901234567890123456789"
